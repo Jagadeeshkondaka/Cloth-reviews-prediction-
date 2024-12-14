@@ -1,0 +1,40 @@
+
+Import necessary libraries
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.metrics import accuracy_score, classification_report
+import pandas as pd
+import numpy as np
+
+Load the dataset
+df = pd.read_csv('women_cloth_reviews.csv')
+
+Preprocess the data
+df['review'] = df['review'].str.lower()
+df['review'] = df['review'].str.replace(r'[^a-zA-Z0-9\s]', '')
+
+Split the data into training and testing sets
+X = df['review']
+y = df['rating']
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+Create a CountVectorizer object
+vectorizer = CountVectorizer(stop_words='english')
+
+Fit the vectorizer to the training data and transform both the training and testing data
+X_train_count = vectorizer.fit_transform(X_train)
+X_test_count = vectorizer.transform(X_test)
+
+Train a Multinomial Naive Bayes classifier on the training data
+clf = MultinomialNB()
+clf.fit(X_train_count, y_train)
+
+Make predictions on the testing data
+y_pred = clf.predict(X_test_count)
+
+Evaluate the classifier's performance
+accuracy = accuracy_score(y_test, y_pred)
+print('Accuracy:', accuracy)
+print('Classification Report:')
+print(classification_report(y_test, y_pred))
